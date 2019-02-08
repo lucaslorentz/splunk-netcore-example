@@ -7,6 +7,8 @@ This project was created to demonstrate basic structured logging using Splunk + 
 Requirements:
 - Windows
 - Docker for Windows
+- Docker swarm (just run `docker swarm init` once in your computer)
+- .NET Core
 - Bash
 
 From bash, execute:
