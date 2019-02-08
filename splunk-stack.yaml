@@ -1,0 +1,61 @@
+# Based on test case 1uf1so
+# https://github.com/splunk/docker-splunk/blob/8533745d63c212b0d08e14d026d9c5dcc83fdc27/test_scenarios/1uf1so.yaml
+
+version: '3'
+
+services:
+  splunk:
+    image: splunk/splunk:7.2.3
+    ports:
+      - 8000:8000
+    hostname: splunk
+    networks:
+      splunk:
+        aliases:
+          - splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_STANDALONE_URL=splunk
+      - SPLUNK_PASSWORD=password
+      - DEBUG=true
+    volumes:
+      - splunk-etc:/opt/splunk/etc
+      - splunk-var:/opt/splunk/var
+    deploy:
+      restart_policy:
+        condition: any
+
+  splunk-forwarder:
+    image: splunk/universalforwarder:7.2.3
+    hostname: splunk-forwarder
+    networks:
+      splunk:
+        aliases:
+          - splunk-forwarder
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_STANDALONE_URL=splunk
+      - SPLUNK_ADD=monitor /var/log/host/ -whitelist \.json$$
+      - SPLUNK_PASSWORD=password
+      - DEBUG=true
+    volumes:
+      - splunk-forwarder-etc:/opt/splunkforwarder/etc
+      - splunk-forwarder-var:/opt/splunkforwarder/var
+      - /c/logs:/var/log/host
+    deploy:
+      restart_policy:
+        condition: any
+
+volumes:
+  splunk-etc:
+    driver: local
+  splunk-var:
+    driver: local
+  splunk-forwarder-etc:
+    driver: local
+  splunk-forwarder-var:
+    driver: local
+
+networks:
+  splunk:
+    driver: overlay
